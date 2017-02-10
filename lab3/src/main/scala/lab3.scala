@@ -70,7 +70,7 @@ object Demo {
 			val texts = lines.map(line => line.split(",(?=([^\"]*\"[^\"]*\")*[^\"]*$)")).map(cs => (if (cs.size < 7) ""; else cs(6)))
 			val words = texts.flatMap(_.split("[ .,?!:\"]"))
 			// fill in your code here
-			val sortedWords = words.map(words => (user, 1)).reduceByKey(_ + _).sortBy(_._2, false)
+			val sortedWords = words.map(words => (words, 1)).reduceByKey(_ + _).sortBy(_._2, false)
 			val top100 = sortedWords.take(100)
 			// output result into file, uncomment it after you finish the code
 			val writer = new PrintWriter(new File("output.txt"))
