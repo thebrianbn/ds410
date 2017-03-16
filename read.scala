@@ -15,7 +15,8 @@ val result = input.map{ line =>
 val reader = new CSVReader(new StringReader(line));
 reader.readNext();
 }
-val test = result.map(x => (x(0), x(1), x(2), x(3), x(4), x(5), x(6), x(7), x(8), x(9), x(10), x(11), x(12), x(13), x(14), x(15), x(16), x(17), x(18), x(19), x(20), x(21)))
-val test2 = test.filter(x => Try(x._11.toInt).isSuccess)
-val test3 = test2.map(x => (x._11.toInt, x._4))
-test3.sortByKey(false)
+
+val data = result.map(x => (x(0), x(1), x(2), x(3), x(4), x(5), x(6), x(7), x(8), x(9), x(10), x(11), x(12), x(13), x(14), x(15), x(16), x(17), x(18), x(19), x(20), x(21)))
+val clean = data.filter(x => Try(x._11.toInt).isSuccess)
+val occ_sal = clean.map(x => (x._4, x._11.toInt))
+val avg_sal = occ_sal.reduceByKey((x, y) => ((x + y) / 2)).sortBy(_._2).take(10)
