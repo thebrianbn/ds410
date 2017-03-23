@@ -38,5 +38,8 @@ val ind_avg_sal = ind_sal.reduceByKey((x, y) => ((x + y) / 2)).sortBy(_._2)
 // get quartile of 2007, then find the cluster center based on the quartileof 2007
 val sorted_a_mean = ind_sal.sortBy(_._2)
 val list_length = sorted_a_mean.count()
+val indexed = sorted_a_mean.zipWithIndex().map(x => (x._1._2, x._2)).map(x => x.swap) // (index, a_mean)
 // three cluster centers would be the element at 1/6, 3/6 and 5/6 of the list
-
+val c1 = indexed.lookup((list_length*0.167).toLong) //cluster center 1
+val c2 = indexed.lookup((list_length*0.5).toLong) //cluster center 2
+val c3 = indexed.lookup((list_length*0.833).toLong) //cluster center 3
