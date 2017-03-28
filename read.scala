@@ -29,7 +29,8 @@ val result = input.map{ line =>
 
 // read data
 val data = result.map(x => (x(0), x(1), x(2), x(3), x(4), x(5), x(6), x(7), x(8), x(9), x(10), x(11), x(12), x(13), x(14), x(15), x(16), x(17), x(18), x(19), x(20), x(21)))
-val clean = data.filter(x => Try(x._11.toInt).isSuccess)
+// x._11 avg salary x._20 median of salary
+val clean = data.filter(x => Try(x._11.toInt).isSuccess).filter(x => Try(x._20.toInt).isSuccess)
 val occ_sal = clean.map(x => (x._4, x._11.toInt))
 val ind_sal = clean.map(x => (x._1, x._11.toInt))
 val occ_avg_sal = occ_sal.reduceByKey((x, y) => ((x + y) / 2)).sortBy(_._2)
@@ -44,3 +45,6 @@ val c1 = indexed.lookup((list_length*0.125).toLong) //cluster center 1
 val c2 = indexed.lookup((list_length*0.375).toLong) //cluster center 2
 val c3 = indexed.lookup((list_length*0.625).toLong) //cluster center 3
 val c4 = indexed.lookup((list_length*0.875).toLong) //cluster center 4
+
+nb_features = 2
+nb_clusters = 4
