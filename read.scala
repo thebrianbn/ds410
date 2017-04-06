@@ -10,6 +10,17 @@ import scala.util.Try
 import java.io.PrintWriter
 import java.io.File
 
+// funciton definations
+def Distance(a:List[Double], b:List[Double]) : Double = {
+      assert(a.length == b.length, "Distance(): features dim does not match.")
+      var dist = 0.0
+      for (i <- 0 to a.length-1) {
+          dist = dist + (a(i) - b(i))
+      }
+      return dist
+  }
+
+
 val files = List("hdfs:/user/xpl5016/Data/2007/oesm07in4/nat4d_may2007_dl.xls.csv",
                  "hdfs:/user/xpl5016/Data/2008/oesm08in4/nat4d_M2008_dl.xls.csv",
                  "hdfs:/user/xpl5016/Data/2009/oesm09in4/nat4d_dl.xls.csv",
@@ -40,11 +51,14 @@ val ind_avg_sal = ind_sal.reduceByKey((x, y) => ((x + y) / 2)).sortBy(_._2)
 val sorted_a_mean = ind_sal.sortBy(_._2)
 val list_length = sorted_a_mean.count()
 val indexed = sorted_a_mean.zipWithIndex().map(x => (x._1._2, x._2)).map(x => x.swap) // (index, a_mean)
+
 // three cluster centers would be the element at 1/6, 3/6 and 5/6 of the list
 val c1 = indexed.lookup((list_length*0.125).toLong) //cluster center 1
 val c2 = indexed.lookup((list_length*0.375).toLong) //cluster center 2
 val c3 = indexed.lookup((list_length*0.625).toLong) //cluster center 3
 val c4 = indexed.lookup((list_length*0.875).toLong) //cluster center 4
 
-nb_features = 2
-nb_clusters = 4
+nb_features = 2 // mean & median
+nb_clusters = 4 // 4 quartiles
+
+// 
