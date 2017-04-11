@@ -9,8 +9,8 @@ Compile:
 Usage: 
 
 ```
-> spark-submit [spark options] demo.jar [exhibit]
+> spark-submit [spark options] milestone1.jar
 ```
-- Exhibit 'hw': HelloWorld
-- Exhibit 'tweeter': Top Tweeters
-- Exhibit 'hashtag': Hashtag Count
+
+# Mileston 1 
+ * Clean up data
