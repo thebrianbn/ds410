@@ -12,5 +12,11 @@ Usage:
 > spark-submit [spark options] milestone1.jar
 ```
 
-# Mileston 1 
+# Milestone 1 
  * Clean up data
+
+# Milestone 2
+ * 
+
+# Milestone 3
+ * 

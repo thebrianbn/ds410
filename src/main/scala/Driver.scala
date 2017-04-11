@@ -62,8 +62,8 @@ object Milestones {
         val clean = data.filter(x => Try(x._11.toInt).isSuccess).filter(x => Try(x._20.toInt).isSuccess)
         val occ_sal = clean.map(x => (x._4, x._11.toInt))
         val ind_sal = clean.map(x => (x._1, x._11.toInt))
-        val occ_avg_sal = occ_sal.reduceByKey((x, y) => ((x + y) / 2)).sortBy(_._2)
-        val ind_avg_sal = ind_sal.reduceByKey((x, y) => ((x + y) / 2)).sortBy(_._2)
+        val occ_by_avg_sal = occ_sal.reduceByKey((x, y) => ((x + y) / 2)).sortBy(_._2)
+        val ind_by_avg_sal = ind_sal.reduceByKey((x, y) => ((x + y) / 2)).sortBy(_._2)
 
         // get quartile of 2007, then find the cluster center based on the quartileof 2007
         val sorted_a_mean = ind_sal.sortBy(_._2)
