@@ -55,29 +55,42 @@ object Milestones {
         reader.readNext();
         }
 
-        // read data
-        val data = result.map(x => (x(0), x(1), x(2), x(3), x(4), x(5), x(6), x(7), x(8), x(9), x(10), x(11), x(12), x(13), x(14), x(15), x(16), x(17), x(18), x(19), x(20), x(21)))
+        // Read data into map
+        val raw_data = result.map(x => (x(0), x(1), x(2), x(3), x(4), x(5), x(6), x(7), x(8), x(9), x(10), x(11), x(12), x(13), x(14), x(15), x(16), x(17), x(18), x(19), x(20), x(21)))
 
-        // x._11 avg salary x._20 median of salary
-        val clean = data.filter(x => Try(x._11.toInt).isSuccess).filter(x => Try(x._20.toInt).isSuccess)
-        val occ_sal = clean.map(x => (x._4, x._11.toInt))
-        val ind_sal = clean.map(x => (x._1, x._11.toInt))
-        val occ_by_avg_sal = occ_sal.reduceByKey((x, y) => ((x + y) / 2)).sortBy(_._2)
-        val ind_by_avg_sal = ind_sal.reduceByKey((x, y) => ((x + y) / 2)).sortBy(_._2)
+        // Clean up dataset so all values in column avg_salary(x._11) and med_salary(x._20) are int
+        val clean = raw_data.filter(x => Try(x._11.toInt).isSuccess).filter(x => Try(x._20.toInt).isSuccess)
+        
+        // Map reduce with respect to avg sal
+        val occ_avg_sal_pairs = clean.map(x => (x._4, x._11.toInt))
+        val ind_avg_sal_pairs = clean.map(x => (x._1, x._11.toInt))
 
-        // get quartile of 2007, then find the cluster center based on the quartileof 2007
-        val sorted_a_mean = ind_sal.sortBy(_._2)
+        val occ_by_avg_sal = occ_avg_sal_pairs.reduceByKey((x, y) => ((x + y) / 2)).sortBy(_._2)
+        val ind_by_avg_sal = ind_avg_sal_pairs.reduceByKey((x, y) => ((x + y) / 2)).sortBy(_._2)
+
+        // Map reduce with respect to med sal
+        val occ_med_sal_pairs = clean.map(x => (x._4, x._20.toInt))
+        val ind_med_sal_pairs = clean.map(x => (x._1, x._20.toInt))
+
+        val occ_by_med_sal = occ_med_sal_pairs.reduceByKey((x, y) => ((x + y) / 2)).sortBy(_._2)
+        val ind_by_med_sal = ind_med_sal_pairs.reduceByKey((x, y) => ((x + y) / 2)).sortBy(_._2)      
+
+        // get quartile of 2007, then find the cluster center based on the quartile of 2007
+        val sorted_a_mean = ind_avg_sal_pairs.sortBy(_._2)
         val list_length = sorted_a_mean.count()
         val indexed = sorted_a_mean.zipWithIndex().map(x => (x._1._2, x._2)).map(x => x.swap) // (index, a_mean)
 
-        // three cluster centers would be the element at 1/6, 3/6 and 5/6 of the list
+        // Define cluster centers
         val c1 = indexed.lookup((list_length*0.125).toLong) //cluster center 1
         val c2 = indexed.lookup((list_length*0.375).toLong) //cluster center 2
         val c3 = indexed.lookup((list_length*0.625).toLong) //cluster center 3
         val c4 = indexed.lookup((list_length*0.875).toLong) //cluster center 4
 
+        // 
+        // val Ccenters = sc.broadcast(Centers(k))
         nb_features = 2 // mean & median
         nb_clusters = 4 // 4 quartiles
+
 
         //*---- Our Code Ends ----*//
     }

@@ -18,3 +18,26 @@ def Distance(a:List[Double], b:List[Double]) : Double = {
     }
     return dist
 }
+
+def dist_step(c:Array[(Int, List[Double])], samples:org.apache.spark.rdd.RDD[(Long, Array[Double])]) : Array[(Int, List[Double])] = {
+    // Broadcast Cluster Centroids
+    val clusters = Demo.sc.broadcast(c)
+
+    // Compute Distances
+    val dist = samples.flatMap{ case(sampleID, sample) => clusters.value.map{ case (clusterID, cluster) => (sampleID, (clusterID, Distance(sample, cluster))) }}
+
+    // Map New Labels
+    val labels = dist.reduceByKey((a, b) => (if (a._2 > b._2) b; else a)).map(t => (t._1, t._2._1))
+
+    // Join Samples and to Cluster ID & Remap Order
+    val clusterKey = samples.join(labels).map(x => (x._2._2, (x._1, x._2._1)))
+
+    // Compute New Cluster Means
+    var new_clusters = clusterKey.combineByKey(
+        (v) => (v._2, 1),
+        (acc:(Array[Double], Int), v) => (acc._1.zip(v._2).map(x => x._1 + x._2), acc._2 + 1),
+        (acc1:(Array[Double], Int), acc2:(Array[Double], Int)) => (acc1._1.zip(acc2._1).map(x => x._1 + x._2), acc1._2 + acc2._2)
+    ).map{ case (k, v) => (k, v._1.map(x => x / v._2.toDouble).toList) }.collect()
+
+    return new_clusters
+}
