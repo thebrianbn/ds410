@@ -74,7 +74,12 @@ object Milestones {
 
         val occ_by_med_sal = occ_med_sal_pairs.reduceByKey((x, y) => ((x + y) / 2)).sortBy(_._2)
         val ind_by_med_sal = ind_med_sal_pairs.reduceByKey((x, y) => ((x + y) / 2)).sortBy(_._2)      
-
+        
+        // Merged average and median RDDs
+        val occ_join = occ_by_avg_sal.join(occ_by_med_sal)
+        val ind_join = ind_by_avg_sal.join(ind_by_med_sal)
+        
+        
         // get quartile of 2007, then find the cluster center based on the quartile of 2007
         val sorted_a_mean = ind_avg_sal_pairs.sortBy(_._2)
         val list_length = sorted_a_mean.count()
