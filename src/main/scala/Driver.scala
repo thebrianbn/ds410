@@ -1,4 +1,4 @@
-package milestone1
+;package milestone1
 
 import java.util.Arrays
 import org.apache.hadoop.conf.Configuration
@@ -8,6 +8,11 @@ import org.apache.spark.SparkConf
 import org.apache.spark.SparkContext
 import scala.collection.JavaConversions
 import scala.io.Source
+import au.com.bytecode.opencsv.CSVReader
+import java.io.PrintWriter
+import java.io.File
+import scala.util.Try
+import java.io.StringReader
 
 object Milestones {
     // Application Specific Variables
@@ -20,7 +25,16 @@ object Milestones {
     private final val HDFS_SITE_CONFIG_PATH = new Path("/usr/hdp/current/hadoop-client/conf/hdfs-site.xml")
     final val conf = new SparkConf().setMaster(SPARK_MASTER).setAppName(APPLICATION_NAME)
     final val sc = new SparkContext(conf)
-    sc.setLogLevel("WARN")    
+    sc.setLogLevel("WARN")  
+
+	def Distance(a:Array[Double], b:Array[Double]) : Double = {
+		assert(a.length == b.length, "Distance(): features dim does not match.")
+		var dist = 0.0
+		for (i <- 0 to a.length-1) {
+			dist = dist + math.pow(a(i) - b(i), 2)
+		}
+		return math.sqrt(dist)
+	}	
 
     def main(args: Array[String]): Unit = {
         // Configure HDFS
@@ -30,20 +44,12 @@ object Milestones {
 
         // Print Usage Information
         System.out.println("\n----------------------------------------------------------------\n")
-        System.out.println("Usage: spark-submit [spark options] lab7.jar [exhibit]")
+        System.out.println("Usage: spark-submit [spark options] milestone1.jar [exhibit]")
         System.out.println(" Exhibit \'kmeans\': KMeans Clustering")
         System.out.println("\n----------------------------------------------------------------\n");
 
         //*---- Our Code Begains ----*//
 
-        def Distance(a:Array[Double], b:Array[Double]) : Double = {
-            assert(a.length == b.length, "Distance(): features dim does not match.")
-            var dist = 0.0
-            for (i <- 0 to a.length-1) {
-                dist = dist + math.pow(a(i) - b(i), 2)
-            }
-            return math.sqrt(dist)
-        }
 
         val files = List("hdfs:/user/xpl5016/Data/2007/oesm07in4/nat4d_may2007_dl.xls.csv",
                                 "hdfs:/user/xpl5016/Data/2008/oesm08in4/nat4d_M2008_dl.xls.csv",
@@ -96,16 +102,16 @@ object Milestones {
         val occ_indexed_med = occ_sorted_a_med.zipWithIndex().map(x => (x._1._2, x._2)).map(x => x.swap) // (index, a_mean)
 
         // Averages
-        val c1 = occ_indexed_avg.lookup((occ_list_length_avg*0.125).toLong) //cluster center 1 
-        val c2 = occ_indexed_avg.lookup((occ_list_length_avg*0.375).toLong) //cluster center 2
-        val c3 = occ_indexed_avg.lookup((occ_list_length_avg*0.625).toLong) //cluster center 3
-        val c4 = occ_indexed_avg.lookup((occ_list_length_avg*0.875).toLong) //cluster center 4
+        var c1 = occ_indexed_avg.lookup((occ_list_length_avg*0.125).toLong) //cluster center 1 
+        var c2 = occ_indexed_avg.lookup((occ_list_length_avg*0.375).toLong) //cluster center 2
+        var c3 = occ_indexed_avg.lookup((occ_list_length_avg*0.625).toLong) //cluster center 3
+        var c4 = occ_indexed_avg.lookup((occ_list_length_avg*0.875).toLong) //cluster center 4
 
         // Medians
-        val c5 = occ_indexed_med.lookup((occ_list_length_med*0.125).toLong) //cluster center 1
-        val c6 = occ_indexed_med.lookup((occ_list_length_med*0.375).toLong) //cluster center 2
-        val c7 = occ_indexed_med.lookup((occ_list_length_med*0.625).toLong) //cluster center 3
-        val c8 = occ_indexed_med.lookup((occ_list_length_med*0.875).toLong) //cluster center 4
+        var c5 = occ_indexed_med.lookup((occ_list_length_med*0.125).toLong) //cluster center 1
+        var c6 = occ_indexed_med.lookup((occ_list_length_med*0.375).toLong) //cluster center 2
+        var c7 = occ_indexed_med.lookup((occ_list_length_med*0.625).toLong) //cluster center 3
+        var c8 = occ_indexed_med.lookup((occ_list_length_med*0.875).toLong) //cluster center 4
 
         // Create cluster centers
         val occ_clusters = sc.broadcast(Array((0, Array(c1(0).toDouble, c5(0).toDouble)), (1, Array(c2(0).toDouble, c6(0).toDouble)), (2, Array(c3(0).toDouble, c7(0).toDouble)), (3, Array(c4(0).toDouble, c8(0).toDouble))))
@@ -125,16 +131,16 @@ object Milestones {
         val ind_indexed_med = ind_sorted_a_med.zipWithIndex().map(x => (x._1._2, x._2)).map(x => x.swap) // (index, a_mean)
 
         // Averages
-        val c1 = ind_indexed_avg.lookup((ind_list_length_avg*0.125).toLong) //cluster center 1 
-        val c2 = ind_indexed_avg.lookup((ind_list_length_avg*0.375).toLong) //cluster center 2
-        val c3 = ind_indexed_avg.lookup((ind_list_length_avg*0.625).toLong) //cluster center 3
-        val c4 = ind_indexed_avg.lookup((ind_list_length_avg*0.875).toLong) //cluster center 4
+        c1 = ind_indexed_avg.lookup((ind_list_length_avg*0.125).toLong) //cluster center 1 
+        c2 = ind_indexed_avg.lookup((ind_list_length_avg*0.375).toLong) //cluster center 2
+        c3 = ind_indexed_avg.lookup((ind_list_length_avg*0.625).toLong) //cluster center 3
+        c4 = ind_indexed_avg.lookup((ind_list_length_avg*0.875).toLong) //cluster center 4
 
         // Medians
-        val c5 = ind_indexed_med.lookup((ind_list_length_med*0.125).toLong) //cluster center 1
-        val c6 = ind_indexed_med.lookup((ind_list_length_med*0.375).toLong) //cluster center 2
-        val c7 = ind_indexed_med.lookup((ind_list_length_med*0.625).toLong) //cluster center 3
-        val c8 = ind_indexed_med.lookup((ind_list_length_med*0.875).toLong) //cluster center 4
+        c5 = ind_indexed_med.lookup((ind_list_length_med*0.125).toLong) //cluster center 1
+        c6 = ind_indexed_med.lookup((ind_list_length_med*0.375).toLong) //cluster center 2
+        c7 = ind_indexed_med.lookup((ind_list_length_med*0.625).toLong) //cluster center 3
+        c8 = ind_indexed_med.lookup((ind_list_length_med*0.875).toLong) //cluster center 4
 
         // Create cluster centers
         val ind_clusters = sc.broadcast(Array((0, Array(c1(0).toDouble, c5(0).toDouble)), (1, Array(c2(0).toDouble, c6(0).toDouble)), (2, Array(c3(0).toDouble, c7(0).toDouble)), (3, Array(c4(0).toDouble, c8(0).toDouble))))
@@ -144,7 +150,17 @@ object Milestones {
 
         // Find the nearest cluster center for each node
         val ind_labels = ind_dist.reduceByKey((a, b) => (if (a._2 > b._2) b; else a)).map(t => (t._1, t._2._1))
-        
+		
+		var writer = new PrintWriter(new File("occ.txt"))
+		occ_labels.collect().foreach(x => writer.write(x + "\n"))
+		writer.close()
+		
+		writer = new PrintWriter(new File("ind.txt"))
+		ind_labels.collect().foreach(x => writer.write(x + "\n"))
+		writer.close()
+		
+		
         //*---- Our Code Ends ----*//
     }
 }
+
