@@ -12,7 +12,7 @@ import scala.io.Source
 object Milestones {
     // Application Specific Variables
     private final val SPARK_MASTER = "yarn-client"
-    private final val APPLICATION_NAME = "lab7"
+    private final val APPLICATION_NAME = "milestone1"
     private final val DATASET_PATH_PUBMED = "/tmp/pubmed.csv"
 
     // HDFS Configuration Files
@@ -36,17 +36,25 @@ object Milestones {
 
         //*---- Our Code Begains ----*//
 
-        // load file list
+        def Distance(a:Array[Double], b:Array[Double]) : Double = {
+            assert(a.length == b.length, "Distance(): features dim does not match.")
+            var dist = 0.0
+            for (i <- 0 to a.length-1) {
+                dist = dist + math.pow(a(i) - b(i), 2)
+            }
+            return math.sqrt(dist)
+        }
+
         val files = List("hdfs:/user/xpl5016/Data/2007/oesm07in4/nat4d_may2007_dl.xls.csv",
-                        "hdfs:/user/xpl5016/Data/2008/oesm08in4/nat4d_M2008_dl.xls.csv",
-                        "hdfs:/user/xpl5016/Data/2009/oesm09in4/nat4d_dl.xls.csv",
-                        "hdfs:/user/xpl5016/Data/2010/oesm10in4/nat4d_M2010_dl.xls.csv",
-                        "hdfs:/user/xpl5016/Data/2011/oesm11in4/nat4d_M2011_dl.xls.csv",
-                        "hdfs:/user/xpl5016/Data/2012/oesm12in4/nat4d_M2012_dl.xls.csv",
-                        "hdfs:/user/xpl5016/Data/2013/oesm13in4/nat4d_M2013_dl.xls.csv",
-                        "hdfs:/user/xpl5016/Data/2014/oesm14in4/nat4d_M2014_dl.xls.csv",
-                        "hdfs:/user/xpl5016/Data/2015/oesm15in4/nat4d_M2015_dl.xls.csv"
-                        )
+                                "hdfs:/user/xpl5016/Data/2008/oesm08in4/nat4d_M2008_dl.xls.csv",
+                                "hdfs:/user/xpl5016/Data/2009/oesm09in4/nat4d_dl.xls.csv",
+                                "hdfs:/user/xpl5016/Data/2010/oesm10in4/nat4d_M2010_dl.xls.csv",
+                                "hdfs:/user/xpl5016/Data/2011/oesm11in4/nat4d_M2011_dl.xls.csv",
+                                "hdfs:/user/xpl5016/Data/2012/oesm12in4/nat4d_M2012_dl.xls.csv",
+                                "hdfs:/user/xpl5016/Data/2013/oesm13in4/nat4d_M2013_dl.xls.csv",
+                                "hdfs:/user/xpl5016/Data/2014/oesm14in4/nat4d_M2014_dl.xls.csv",
+                                "hdfs:/user/xpl5016/Data/2015/oesm15in4/nat4d_M2015_dl.xls.csv"
+                                )
 
         // read in test file
         val input = sc.textFile("hdfs:/user/xpl5016/Data/2007/oesm07in4/nat3d_may2007_dl.xls.csv")
@@ -60,43 +68,83 @@ object Milestones {
 
         // Clean up dataset so all values in column avg_salary(x._11) and med_salary(x._20) are int
         val clean = raw_data.filter(x => Try(x._11.toInt).isSuccess).filter(x => Try(x._20.toInt).isSuccess)
-        
+
         // Map reduce with respect to avg sal
         val occ_avg_sal_pairs = clean.map(x => (x._4, x._11.toInt))
-        val ind_avg_sal_pairs = clean.map(x => (x._1, x._11.toInt))
+        val ind_avg_sal_pairs = clean.map(x => (x._2, x._11.toInt))
 
         val occ_by_avg_sal = occ_avg_sal_pairs.reduceByKey((x, y) => ((x + y) / 2)).sortBy(_._2)
         val ind_by_avg_sal = ind_avg_sal_pairs.reduceByKey((x, y) => ((x + y) / 2)).sortBy(_._2)
 
         // Map reduce with respect to med sal
         val occ_med_sal_pairs = clean.map(x => (x._4, x._20.toInt))
-        val ind_med_sal_pairs = clean.map(x => (x._1, x._20.toInt))
+        val ind_med_sal_pairs = clean.map(x => (x._2, x._20.toInt))
 
         val occ_by_med_sal = occ_med_sal_pairs.reduceByKey((x, y) => ((x + y) / 2)).sortBy(_._2)
         val ind_by_med_sal = ind_med_sal_pairs.reduceByKey((x, y) => ((x + y) / 2)).sortBy(_._2)      
+
+        //
+        val occ_join = occ_by_avg_sal.join(occ_by_med_sal).map(x => (x._1, Array(x._2._1.toDouble, x._2._2.toDouble)))
+        val ind_join = ind_by_avg_sal.join(ind_by_med_sal).map(x => (x._1, Array(x._2._1.toDouble, x._2._2.toDouble)))
+
+        val occ_sorted_a_mean = occ_avg_sal_pairs.sortBy(_._2)
+        val occ_list_length_avg = occ_sorted_a_mean.count()
+        val occ_indexed_avg = occ_sorted_a_mean.zipWithIndex().map(x => (x._1._2, x._2)).map(x => x.swap) // (index, a_mean)
+
+        val occ_sorted_a_med = occ_avg_sal_pairs.sortBy(_._2)
+        val occ_list_length_med = occ_sorted_a_med.count()
+        val occ_indexed_med = occ_sorted_a_med.zipWithIndex().map(x => (x._1._2, x._2)).map(x => x.swap) // (index, a_mean)
+
+        // Averages
+        val c1 = occ_indexed_avg.lookup((occ_list_length_avg*0.125).toLong) //cluster center 1 
+        val c2 = occ_indexed_avg.lookup((occ_list_length_avg*0.375).toLong) //cluster center 2
+        val c3 = occ_indexed_avg.lookup((occ_list_length_avg*0.625).toLong) //cluster center 3
+        val c4 = occ_indexed_avg.lookup((occ_list_length_avg*0.875).toLong) //cluster center 4
+
+        // Medians
+        val c5 = occ_indexed_med.lookup((occ_list_length_med*0.125).toLong) //cluster center 1
+        val c6 = occ_indexed_med.lookup((occ_list_length_med*0.375).toLong) //cluster center 2
+        val c7 = occ_indexed_med.lookup((occ_list_length_med*0.625).toLong) //cluster center 3
+        val c8 = occ_indexed_med.lookup((occ_list_length_med*0.875).toLong) //cluster center 4
+
+        // Create cluster centers
+        val occ_clusters = sc.broadcast(Array((0, Array(c1(0).toDouble, c5(0).toDouble)), (1, Array(c2(0).toDouble, c6(0).toDouble)), (2, Array(c3(0).toDouble, c7(0).toDouble)), (3, Array(c4(0).toDouble, c8(0).toDouble))))
+
+        // Find the distance between nodes and cluster centers
+        val occ_dist = occ_join.flatMap(samp => occ_clusters.value.map(clus => (samp._1, (clus._1, Distance(samp._2, clus._2))) ))
+
+        // Find the nearest cluster center for each node
+        val occ_labels = occ_dist.reduceByKey((a, b) => (if (a._2 > b._2) b; else a)).map(t => (t._1, t._2._1))
+
+        val ind_sorted_a_mean = ind_avg_sal_pairs.sortBy(_._2)
+        val ind_list_length_avg = ind_sorted_a_mean.count()
+        val ind_indexed_avg = ind_sorted_a_mean.zipWithIndex().map(x => (x._1._2, x._2)).map(x => x.swap) // (index, a_mean)
+
+        val ind_sorted_a_med = ind_avg_sal_pairs.sortBy(_._2)
+        val ind_list_length_med = ind_sorted_a_med.count()
+        val ind_indexed_med = ind_sorted_a_med.zipWithIndex().map(x => (x._1._2, x._2)).map(x => x.swap) // (index, a_mean)
+
+        // Averages
+        val c1 = ind_indexed_avg.lookup((ind_list_length_avg*0.125).toLong) //cluster center 1 
+        val c2 = ind_indexed_avg.lookup((ind_list_length_avg*0.375).toLong) //cluster center 2
+        val c3 = ind_indexed_avg.lookup((ind_list_length_avg*0.625).toLong) //cluster center 3
+        val c4 = ind_indexed_avg.lookup((ind_list_length_avg*0.875).toLong) //cluster center 4
+
+        // Medians
+        val c5 = ind_indexed_med.lookup((ind_list_length_med*0.125).toLong) //cluster center 1
+        val c6 = ind_indexed_med.lookup((ind_list_length_med*0.375).toLong) //cluster center 2
+        val c7 = ind_indexed_med.lookup((ind_list_length_med*0.625).toLong) //cluster center 3
+        val c8 = ind_indexed_med.lookup((ind_list_length_med*0.875).toLong) //cluster center 4
+
+        // Create cluster centers
+        val ind_clusters = sc.broadcast(Array((0, Array(c1(0).toDouble, c5(0).toDouble)), (1, Array(c2(0).toDouble, c6(0).toDouble)), (2, Array(c3(0).toDouble, c7(0).toDouble)), (3, Array(c4(0).toDouble, c8(0).toDouble))))
+
+        // Find the distance between nodes and cluster centers
+        val ind_dist = ind_join.flatMap(samp => ind_clusters.value.map(clus => (samp._1, (clus._1, Distance(samp._2, clus._2))) ))
+
+        // Find the nearest cluster center for each node
+        val ind_labels = ind_dist.reduceByKey((a, b) => (if (a._2 > b._2) b; else a)).map(t => (t._1, t._2._1))
         
-        // Merged average and median RDDs
-        val occ_join = occ_by_avg_sal.join(occ_by_med_sal)
-        val ind_join = ind_by_avg_sal.join(ind_by_med_sal)
-        
-        
-        // get quartile of 2007, then find the cluster center based on the quartile of 2007
-        val sorted_a_mean = ind_avg_sal_pairs.sortBy(_._2)
-        val list_length = sorted_a_mean.count()
-        val indexed = sorted_a_mean.zipWithIndex().map(x => (x._1._2, x._2)).map(x => x.swap) // (index, a_mean)
-
-        // Define cluster centers
-        val c1 = indexed.lookup((list_length*0.125).toLong) //cluster center 1
-        val c2 = indexed.lookup((list_length*0.375).toLong) //cluster center 2
-        val c3 = indexed.lookup((list_length*0.625).toLong) //cluster center 3
-        val c4 = indexed.lookup((list_length*0.875).toLong) //cluster center 4
-
-        // 
-        // val Ccenters = sc.broadcast(Centers(k))
-        nb_features = 2 // mean & median
-        nb_clusters = 4 // 4 quartiles
-
-
         //*---- Our Code Ends ----*//
     }
 }
