@@ -27,49 +27,23 @@ object Milestones {
     final val sc = new SparkContext(conf)
     sc.setLogLevel("WARN")  
 
-	def Distance(a:Array[Double], b:Array[Double]) : Double = {
-		assert(a.length == b.length, "Distance(): features dim does not match.")
-		var dist = 0.0
-		for (i <- 0 to a.length-1) {
-			dist = dist + math.pow(a(i) - b(i), 2)
-		}
-		return math.sqrt(dist)
-	}	
-
-    def main(args: Array[String]): Unit = {
-        // Configure HDFS
-        val configuration = new Configuration();
-        configuration.addResource(CORE_SITE_CONFIG_PATH);
-        configuration.addResource(HDFS_SITE_CONFIG_PATH);
-
-        // Print Usage Information
-        System.out.println("\n----------------------------------------------------------------\n")
-        System.out.println("Usage: spark-submit [spark options] milestone1.jar [exhibit]")
-        System.out.println(" Exhibit \'kmeans\': KMeans Clustering")
-        System.out.println("\n----------------------------------------------------------------\n");
-
-        //*---- Our Code Begains ----*//
-
-
-        val files = List("hdfs:/user/xpl5016/Data/2007/oesm07in4/nat4d_may2007_dl.xls.csv",
-                                "hdfs:/user/xpl5016/Data/2008/oesm08in4/nat4d_M2008_dl.xls.csv",
-                                "hdfs:/user/xpl5016/Data/2009/oesm09in4/nat4d_dl.xls.csv",
-                                "hdfs:/user/xpl5016/Data/2010/oesm10in4/nat4d_M2010_dl.xls.csv",
-                                "hdfs:/user/xpl5016/Data/2011/oesm11in4/nat4d_M2011_dl.xls.csv",
-                                "hdfs:/user/xpl5016/Data/2012/oesm12in4/nat4d_M2012_dl.xls.csv",
-                                "hdfs:/user/xpl5016/Data/2013/oesm13in4/nat4d_M2013_dl.xls.csv",
-                                "hdfs:/user/xpl5016/Data/2014/oesm14in4/nat4d_M2014_dl.xls.csv",
-                                "hdfs:/user/xpl5016/Data/2015/oesm15in4/nat4d_M2015_dl.xls.csv"
-                                )
-
+    def Distance(a:Array[Double], b:Array[Double]) : Double = {
+        assert(a.length == b.length, "Distance(): features dim does not match.")
+        var dist = 0.0
+        for (i <- 0 to a.length-1) {
+            dist = dist + math.pow(a(i) - b(i), 2)
+        }
+        return math.sqrt(dist)
+    }
+	
+    def Clustering(file_name:String) : Array[(Int,String)] = {
         // read in test file
         val input = sc.textFile("hdfs:/user/xpl5016/Data/2007/oesm07in4/nat3d_may2007_dl.xls.csv")
         val result = input.map{ line =>
         val reader = new CSVReader(new StringReader(line));
         reader.readNext();
         }
-
-        // Read data into map
+ 	// Read data into map
         val raw_data = result.map(x => (x(0), x(1), x(2), x(3), x(4), x(5), x(6), x(7), x(8), x(9), x(10), x(11), x(12), x(13), x(14), x(15), x(16), x(17), x(18), x(19), x(20), x(21)))
 
         // Clean up dataset so all values in column avg_salary(x._11) and med_salary(x._20) are int
@@ -151,15 +125,46 @@ object Milestones {
         // Find the nearest cluster center for each node
         val ind_labels = ind_dist.reduceByKey((a, b) => (if (a._2 > b._2) b; else a)).map(t => (t._1, t._2._1))
 		
-		var writer = new PrintWriter(new File("occ.txt"))
-		occ_labels.collect().foreach(x => writer.write(x + "\n"))
-		writer.close()
-		
-		writer = new PrintWriter(new File("ind.txt"))
-		ind_labels.collect().foreach(x => writer.write(x + "\n"))
-		writer.close()
-		
-		
+	var writer = new PrintWriter(new File("occ.txt"))
+	occ_labels.collect().foreach(x => writer.write(x + "\n"))
+	writer.close()
+
+	writer = new PrintWriter(new File("ind.txt"))
+	ind_labels.collect().foreach(x => writer.write(x + "\n"))
+	writer.close()
+    }
+
+    def main(args: Array[String]): Unit = {
+        // Configure HDFS
+        val configuration = new Configuration();
+        configuration.addResource(CORE_SITE_CONFIG_PATH);
+        configuration.addResource(HDFS_SITE_CONFIG_PATH);
+
+        // Print Usage Information
+        System.out.println("\n----------------------------------------------------------------\n")
+        System.out.println("Usage: spark-submit [spark options] milestone1.jar [exhibit]")
+        System.out.println(" Exhibit \'kmeans\': KMeans Clustering")
+        System.out.println("\n----------------------------------------------------------------\n");
+
+        //*---- Our Code Begains ----*//
+
+
+        val files = List("hdfs:/user/xpl5016/Data/2007/oesm07in4/nat4d_may2007_dl.xls.csv",
+                                "hdfs:/user/xpl5016/Data/2008/oesm08in4/nat4d_M2008_dl.xls.csv",
+                                "hdfs:/user/xpl5016/Data/2009/oesm09in4/nat4d_dl.xls.csv",
+                                "hdfs:/user/xpl5016/Data/2010/oesm10in4/nat4d_M2010_dl.xls.csv",
+                                "hdfs:/user/xpl5016/Data/2011/oesm11in4/nat4d_M2011_dl.xls.csv",
+                                "hdfs:/user/xpl5016/Data/2012/oesm12in4/nat4d_M2012_dl.xls.csv",
+                                "hdfs:/user/xpl5016/Data/2013/oesm13in4/nat4d_M2013_dl.xls.csv",
+                                "hdfs:/user/xpl5016/Data/2014/oesm14in4/nat4d_M2014_dl.xls.csv",
+                                "hdfs:/user/xpl5016/Data/2015/oesm15in4/nat4d_M2015_dl.xls.csv"
+                                )
+
+	for(file <- files){
+		Clustering(file)
+	}
+
+       
         //*---- Our Code Ends ----*//
     }
 }
