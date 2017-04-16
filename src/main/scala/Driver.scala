@@ -71,7 +71,7 @@ object Milestones {
         val occ_list_length_avg = occ_sorted_a_mean.count()
         val occ_indexed_avg = occ_sorted_a_mean.zipWithIndex().map(x => (x._1._2, x._2)).map(x => x.swap) // (index, a_mean)
 
-        val occ_sorted_a_med = occ_avg_sal_pairs.sortBy(_._2)
+        val occ_sorted_a_med = occ_med_sal_pairs.sortBy(_._2)
         val occ_list_length_med = occ_sorted_a_med.count()
         val occ_indexed_med = occ_sorted_a_med.zipWithIndex().map(x => (x._1._2, x._2)).map(x => x.swap) // (index, a_mean)
 
@@ -100,7 +100,7 @@ object Milestones {
         val ind_list_length_avg = ind_sorted_a_mean.count()
         val ind_indexed_avg = ind_sorted_a_mean.zipWithIndex().map(x => (x._1._2, x._2)).map(x => x.swap) // (index, a_mean)
 
-        val ind_sorted_a_med = ind_avg_sal_pairs.sortBy(_._2)
+        val ind_sorted_a_med = ind_med_sal_pairs.sortBy(_._2)
         val ind_list_length_med = ind_sorted_a_med.count()
         val ind_indexed_med = ind_sorted_a_med.zipWithIndex().map(x => (x._1._2, x._2)).map(x => x.swap) // (index, a_mean)
 
