@@ -149,12 +149,12 @@ object Milestones {
 
         // Print out result into a csv file
         val occ_file =  new File("occ"+ file_name +".csv")
-        writer = CSVWriter.open()
+        writer = CSVWriter.open(occ_file)
         occ_labels.collect().foreach(x => writer.writeRow(List(x._1, x._2)))
         writer.close()
 
-        val ind_file =  new File("ind"+ file_name +".csv")
-        writer = CSVWriter.open(new File("ind"+ file_name +".csv"))
+        val ind_file = new File("ind"+ file_name +".csv")
+        writer = CSVWriter.open(ind_file)
         ind_labels.collect().foreach(x => writer.writeRow(List(x._1, x._2)))
         writer.close()
     }
