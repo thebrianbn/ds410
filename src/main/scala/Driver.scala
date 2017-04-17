@@ -148,11 +148,11 @@ object Milestones {
         writer.close()
 
         // Print out result into a csv file
-        writer = new CSVWriter(new File("occ"+ file_name +".csv"))
+        writer = CSVWriter.open(new File("occ"+ file_name +".csv"))
         occ_labels.collect().foreach(x => writer.writeRow(List(x._1, x._2)))
         writer.close()
 
-        writer = new CSVWriter(new File("ind"+ file_name +".csv"))
+        writer = CSVWriter.open(new File("ind"+ file_name +".csv"))
         ind_labels.collect().foreach(x => writer.writeRow(List(x._1, x._2)))
         writer.close()
     }
@@ -193,19 +193,9 @@ object Milestones {
                         "hdfs:/user/xpl5016/Data/2014/oesm14in4/nat4d_M2014_dl.xls.csv",
                         "hdfs:/user/xpl5016/Data/2015/oesm15in4/nat4d_M2015_dl.xls.csv"
         )
-        // Get base cluster centers from 2007 dataset
-        // Read in test file
-        val input = sc.textFile("hdfs:/user/xpl5016/Data/2007/oesm07in4/nat4d_may2007_dl.xls.csv")
-        val result = input.map{ line =>
-            val reader = new CSVReader(
-                new StringReader(line)
-            );
-            reader.readNext();
-        }
- 	   
                                               
         for(file <- files) {
-            Clustering(file, occ_clusters, ind_clusters)
+            Clustering(file)
         }
         //*---- Our Code Ends ----*//
     }
