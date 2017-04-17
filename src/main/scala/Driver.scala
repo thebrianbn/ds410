@@ -13,6 +13,8 @@ import java.io.PrintWriter
 import java.io.File
 import scala.util.Try
 import java.io.StringReader
+// CSV reader/writer
+import com.github.tototoshi.csv._
 
 object Milestones {
     // Application Specific Variables
@@ -38,7 +40,7 @@ object Milestones {
 	
     // TODO: fix the paras
     def Clustering(file_name:String, occ_clusters:Array, ind_clusters:Array) : Unit = {
-        // read in test file
+        // Read in test file
         val input = sc.textFile(file_name)
         val result = input.map{ line =>
             val reader = new CSVReader(
@@ -88,6 +90,28 @@ object Milestones {
         writer = new PrintWriter(new File("ind"+ file_name +".txt"))
         ind_labels.collect().foreach(x => writer.write(x + "\n"))
         writer.close()
+
+        // Print out result into a csv file
+        writer = new CSVWriter(new File("occ"+ file_name +".csv"))
+        occ_labels.collect().foreach(x => writer.writeRow(List(x._1, x._2)))
+        writer.close()
+
+        writer = new CSVWriter(new File("ind"+ file_name +".csv"))
+        ind_labels.collect().foreach(x => writer.writeRow(List(x._1, x._2)))
+        writer.close()
+    }
+
+    // Analyze the result
+    def Analyze(file_name:String):Unit = {
+        // Read in test file
+        val input = sc.textFile(file_name)
+        val result = input.map{ line =>
+            val reader = new CSVReader(
+                new StringReader(line)
+            );
+            reader.readNext();
+        }
+        
     }
 
     def main(args: Array[String]): Unit = {
@@ -114,7 +138,7 @@ object Milestones {
                         "hdfs:/user/xpl5016/Data/2015/oesm15in4/nat4d_M2015_dl.xls.csv"
         )
         // Get base cluster centers from 2007 dataset
-              // read in test file
+        // Read in test file
         val input = sc.textFile("hdfs:/user/xpl5016/Data/2007/oesm07in4/nat4d_may2007_dl.xls.csv")
         val result = input.map{ line =>
             val reader = new CSVReader(
@@ -196,8 +220,6 @@ object Milestones {
         for(file <- files) {
             Clustering(file, occ_clusters, ind_clusters)
         }
-
-
         //*---- Our Code Ends ----*//
     }
 }

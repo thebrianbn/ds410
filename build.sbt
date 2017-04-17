@@ -6,5 +6,6 @@ lazy val root = (project in file(".")).
 )
 libraryDependencies ++= Seq(
 	"org.apache.spark" %% "spark-core" % "1.5.2",
-	"org.apache.spark" %% "spark-mllib" % "1.5.2"
+	"org.apache.spark" %% "spark-mllib" % "1.5.2",
+	"com.github.tototoshi" %% "scala-csv" % "1.3.4"
 )
