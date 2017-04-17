@@ -67,23 +67,6 @@ object Milestones {
         
         val occ_by_med_sal = occ_med_sal_pairs.reduceByKey((x, y) => ((x + y) / 2)).sortBy(_._2)
         val ind_by_med_sal = ind_med_sal_pairs.reduceByKey((x, y) => ((x + y) / 2)).sortBy(_._2)     
-        
-        // Read data into map
-        val raw_data = result.map(x => (x(0), x(1), x(2), x(3), x(4), x(5), x(6), x(7), x(8), x(9), x(10), x(11), x(12), x(13), x(14), x(15), x(16), x(17), x(18), x(19), x(20), x(21)))
-
-        // Clean up dataset so all values in column avg_salary(x._11) and med_salary(x._20) are int
-        val clean = raw_data.filter(x => Try(x._11.toInt).isSuccess).filter(x => Try(x._20.toInt).isSuccess)
-
-        // Map reduce with respect to avg sal
-        val occ_avg_sal_pairs = clean.map(x => (x._4, x._11.toInt))
-        val ind_avg_sal_pairs = clean.map(x => (x._2, x._11.toInt))
-
-        val occ_by_avg_sal = occ_avg_sal_pairs.reduceByKey((x, y) => ((x + y) / 2)).sortBy(_._2)
-        val ind_by_avg_sal = ind_avg_sal_pairs.reduceByKey((x, y) => ((x + y) / 2)).sortBy(_._2)
-
-        // Map reduce with respect to med sal
-        val occ_med_sal_pairs = clean.map(x => (x._4, x._20.toInt))
-        val ind_med_sal_pairs = clean.map(x => (x._2, x._20.toInt))
 
         // Occupation 
         val occ_sorted_a_mean = occ_avg_sal_pairs.sortBy(_._2)
