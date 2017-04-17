@@ -39,7 +39,7 @@ object Milestones {
     }
 	
     // TODO: fix the paras
-    def Clustering(file_name:String, occ_clusters:Array, ind_clusters:Array) : Unit = {
+    def Clustering(file_name:String) : Unit = {
         // Read in test file
         val input = sc.textFile(file_name)
         val result = input.map{ line =>
@@ -111,7 +111,7 @@ object Milestones {
             );
             reader.readNext();
         }
-        
+
     }
 
     def main(args: Array[String]): Unit = {
