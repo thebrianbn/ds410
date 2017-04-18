@@ -158,7 +158,6 @@ object Milestones {
 	return result
     }
 
-    }
 
     def main(args: Array[String]): Unit = {
         // Configure HDFS
