@@ -114,9 +114,7 @@ object Milestones {
                                               (1, Array(c2(0).toDouble, c6(0).toDouble)), 
                                               (2, Array(c3(0).toDouble, c7(0).toDouble)), 
                                               (3, Array(c4(0).toDouble, c8(0).toDouble))))
-
-
-
+	    
         // Find the distance between nodes and cluster centers
         val occ_join = occ_by_avg_sal.join(occ_by_med_sal).map(x => (x._1, Array(x._2._1.toDouble, x._2._2.toDouble)))        
         val occ_dist = occ_join.flatMap(samp => occ_clusters.value.map(clus => (samp._1, (clus._1, Distance(samp._2, clus._2)))))
@@ -157,7 +155,6 @@ object Milestones {
 	}
 	return result
     }
-
 
     def main(args: Array[String]): Unit = {
         // Configure HDFS
