@@ -1,4 +1,4 @@
-;package milestone1
+package milestone1
 
 import java.util.Arrays
 import org.apache.hadoop.conf.Configuration
