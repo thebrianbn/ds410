@@ -68,11 +68,11 @@ object Milestones {
         val ind_by_med_sal = ind_med_sal_pairs.reduceByKey((x, y) => ((x + y) / 2)).sortBy(_._2)     
 
         // Occupation 
-        val occ_sorted_a_mean = occ_avg_sal_pairs.sortBy(_._2)
+        val occ_sorted_a_mean = occ_by_avg_sal.sortBy(_._2)
         val occ_list_length_avg = occ_sorted_a_mean.count()
         val occ_indexed_avg = occ_sorted_a_mean.zipWithIndex().map(x => (x._1._2, x._2)).map(x => x.swap) // (index, a_mean)
 
-        val occ_sorted_a_med = occ_med_sal_pairs.sortBy(_._2)
+        val occ_sorted_a_med = occ_by_med_sal.sortBy(_._2)
         val occ_list_length_med = occ_sorted_a_med.count()
         val occ_indexed_med = occ_sorted_a_med.zipWithIndex().map(x => (x._1._2, x._2)).map(x => x.swap) // (index, a_mean)
 
@@ -95,11 +95,11 @@ object Milestones {
                                               (3, Array(c4(0).toDouble, c8(0).toDouble))))
 
         // Industry
-        val ind_sorted_a_mean = ind_avg_sal_pairs.sortBy(_._2)
+        val ind_sorted_a_mean = ind__by_avg_sal.sortBy(_._2)
         val ind_list_length_avg = ind_sorted_a_mean.count()
         val ind_indexed_avg = ind_sorted_a_mean.zipWithIndex().map(x => (x._1._2, x._2)).map(x => x.swap) // (index, a_mean)
 
-        val ind_sorted_a_med = ind_med_sal_pairs.sortBy(_._2)
+        val ind_sorted_a_med = ind_by_med_sal.sortBy(_._2)
         val ind_list_length_med = ind_sorted_a_med.count()
         val ind_indexed_med = ind_sorted_a_med.zipWithIndex().map(x => (x._1._2, x._2)).map(x => x.swap) // (index, a_mean)
 
@@ -139,11 +139,11 @@ object Milestones {
 		
         // Print the result with corresponding file name
         var writer = new PrintWriter(new File("occ"+ file_name +".txt"))
-        occ_labels.collect().foreach(x => writer.write(x._1 + "\t" + x._2))
+        occ_labels.collect().foreach(x => writer.write(x._2 + "\t" + x._1 + "\n"))
         writer.close()
 
         writer = new PrintWriter(new File("ind"+ file_name +".txt"))
-        ind_labels.collect().foreach(x => writer.write(x._1 + "\t" + x._2))
+        ind_labels.collect().foreach(x => writer.write(x._2 + "\t" + x._1 + "\n"))
         writer.close()
     }
 
@@ -173,7 +173,7 @@ object Milestones {
         System.out.println("\n----------------------------------------------------------------\n");
 
         //*---- Our Code Begains ----*//
-        val files = List("hdfs:/user/xpl5016/Data/2007/oesm07in4/nat4d_May2007_dl.xls.csv",
+        val files = List("hdfs:/user/xpl5016/Data/2007/oesm07in4/nat4d_may2007_dl.xls.csv",
                         "hdfs:/user/xpl5016/Data/2008/oesm08in4/nat4d_M2008_dl.xls.csv",
                         "hdfs:/user/xpl5016/Data/2009/oesm09in4/nat4d_dl.xls.csv",
                         "hdfs:/user/xpl5016/Data/2010/oesm10in4/nat4d_M2010_dl.xls.csv",
