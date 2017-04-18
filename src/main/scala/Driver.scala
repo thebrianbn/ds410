@@ -40,13 +40,7 @@ object Milestones {
     // TODO: fix the paras
     def Clustering(file_name:String) : Unit = {
         // Read in test file
-        val input = sc.textFile(file_name)
-        val result = input.map{ line =>
-            val reader = new CSVReader(
-                new StringReader(line)
-            );
-            reader.readNext();
-        }
+        val result = Reader(file_name)
  	    // Read data into map
         val raw_data = result.map(x => (x(0), x(1), x(2), x(3), x(4), x(5), x(6), x(7), x(8), x(9), x(10), x(11), x(12), x(13), x(14), x(15), x(16), x(17), x(18), x(19), x(20), x(21)))
 
@@ -95,7 +89,7 @@ object Milestones {
                                               (3, Array(c4(0).toDouble, c8(0).toDouble))))
 
         // Industry
-        val ind_sorted_a_mean = ind__by_avg_sal.sortBy(_._2)
+        val ind_sorted_a_mean = ind_by_avg_sal.sortBy(_._2)
         val ind_list_length_avg = ind_sorted_a_mean.count()
         val ind_indexed_avg = ind_sorted_a_mean.zipWithIndex().map(x => (x._1._2, x._2)).map(x => x.swap) // (index, a_mean)
 
@@ -152,15 +146,17 @@ object Milestones {
     }
 
     // Analyze the result
-    def Analyze(file_name:String):Unit = {
-        // Read in test file
-        val input = sc.textFile(file_name)
-        val result = input.map{ line =>
-            val reader = new CSVReader(
-                new StringReader(line)
-            );
-            reader.readNext();
-        }
+    def Reader(file_name:String): org.apache.spark.rdd.RDD[Array[String]] = {
+	// Read in test file
+	val input = sc.textFile(file_name)
+	val result = input.map{ line =>
+		val reader = new CSVReader(
+			new StringReader(line)
+		);
+		reader.readNext();
+	}
+	return result
+    }
 
     }
 
