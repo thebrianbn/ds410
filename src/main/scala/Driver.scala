@@ -37,6 +37,19 @@ object Milestones {
         return math.sqrt(dist)
     }
 	
+    // Analyze the result
+    def Reader(file_name:String): org.apache.spark.rdd.RDD[Array[String]] = {
+	// Read in test file
+	val input = sc.textFile(file_name)
+	val result = input.map{ line =>
+		val reader = new CSVReader(
+			new StringReader(line)
+		);
+		reader.readNext();
+	}
+	return result
+    }
+	
     // TODO: fix the paras
     def Clustering(file_name:String) : Unit = {
         // Read in test file
@@ -141,19 +154,6 @@ object Milestones {
         writer = new PrintWriter(new File("ind"+ name +".txt"))
         ind_labels.collect().foreach(x => writer.write(x._2 + "\t" + x._1 + "\n"))
         writer.close()
-    }
-
-    // Analyze the result
-    def Reader(file_name:String): org.apache.spark.rdd.RDD[Array[String]] = {
-	// Read in test file
-	val input = sc.textFile(file_name)
-	val result = input.map{ line =>
-		val reader = new CSVReader(
-			new StringReader(line)
-		);
-		reader.readNext();
-	}
-	return result
     }
 
     def main(args: Array[String]): Unit = {
