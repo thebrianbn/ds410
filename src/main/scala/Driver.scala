@@ -13,8 +13,7 @@ import java.io.PrintWriter
 import java.io.File
 import scala.util.Try
 import java.io.StringReader
-// CSV reader/writer
-import com.github.tototoshi.csv._
+
 
 object Milestones {
     // Application Specific Variables
@@ -140,22 +139,11 @@ object Milestones {
 		
         // Print the result with corresponding file name
         var writer = new PrintWriter(new File("occ"+ file_name +".txt"))
-        occ_labels.collect().foreach(x => writer.write(x + "\n"))
+        occ_labels.collect().foreach(x => writer.write(x._1 + "\t" + x._2))
         writer.close()
 
         writer = new PrintWriter(new File("ind"+ file_name +".txt"))
-        ind_labels.collect().foreach(x => writer.write(x + "\n"))
-        writer.close()
-
-        // Print out result into a csv file
-        val occ_file =  new File("occ"+ file_name +".csv")
-        writer = CSVWriter.open(occ_file)
-        occ_labels.collect().foreach(x => writer.writeRow(List(x._1, x._2)))
-        writer.close()
-
-        val ind_file = new File("ind"+ file_name +".csv")
-        writer = CSVWriter.open(ind_file)
-        ind_labels.collect().foreach(x => writer.writeRow(List(x._1, x._2)))
+        ind_labels.collect().foreach(x => writer.write(x._1 + "\t" + x._2))
         writer.close()
     }
 
