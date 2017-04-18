@@ -137,12 +137,16 @@ object Milestones {
         // Find the nearest cluster center for each node
         val ind_labels = ind_dist.reduceByKey((a, b) => (if (a._2 > b._2) b; else a)).map(t => (t._1, t._2._1))
 		
+	// Clean up file name
+	val file_name_regex = """nat.*_dl""".r
+	val name = file_name_regex.findFirstIn(file_name)
+	    
         // Print the result with corresponding file name
-        var writer = new PrintWriter(new File("occ"+ file_name +".txt"))
+        var writer = new PrintWriter(new File("occ"+ name +".txt"))
         occ_labels.collect().foreach(x => writer.write(x._2 + "\t" + x._1 + "\n"))
         writer.close()
 
-        writer = new PrintWriter(new File("ind"+ file_name +".txt"))
+        writer = new PrintWriter(new File("ind"+ name +".txt"))
         ind_labels.collect().foreach(x => writer.write(x._2 + "\t" + x._1 + "\n"))
         writer.close()
     }
