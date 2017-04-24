@@ -20,7 +20,10 @@ Usage:
 
 # Milestone 3
  * Use linear regression to predict the salary change of each occupation based on the data set. 
- * Our **label attribute** for regression will be the **average annual salary for each occupation**. 
- * Our **regular attribute** will be the years (2007 onwards). 
- * These regression lines will be formed for each occupation to predict their annual average annual salary for the coming years. 
+ * The data set we form up to do the linear regression would be in the following SVM format:
+  * \<avg_sal> 1:\<year> 
+  * The **year** will be the years (2007 onwards). 
+  * The **avg_sal** will be the **average annual salary for each occupation**. 
+ 
+  * These regression lines will be formed for each occupation to predict their annual average annual salary for the coming years. 
  * The year 2016 can be used to compare our results if that data is readily available. The source http://www1.salary.com can be used to compare our results. 
