@@ -102,7 +102,7 @@ object Milestones {
         System.out.println(s"RMSE: ${trainingSummary.rootMeanSquaredError}")
         System.out.println(s"r2: ${trainingSummary.r2}")
 
-        writer = new PrintWriter(new File("lrModelResult.txt"))
+        var writer = new PrintWriter(new File("lrModelResult.txt"))
         writer.write(s"Coefficients: ${lrModel.coefficients} Intercept: ${lrModel.intercept}\n")
         writer.write(s"numIterations: ${trainingSummary.totalIterations}\n")
         writer.write(s"objectiveHistory: [${trainingSummary.objectiveHistory.mkString(",")}]\n")
