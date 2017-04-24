@@ -9,11 +9,17 @@ import org.apache.spark.SparkContext
 import scala.collection.JavaConversions
 import scala.io.Source
 import au.com.bytecode.opencsv.CSVReader
-import java.io.PrintWriter
-import java.io.File
+//import java.io.PrintWriter
+//import java.io.File
 import scala.util.Try
 import java.io.StringReader
 import org.apache.spark.storage.StorageLevel
+
+import org.apache.spark.mllib.linalg.Vectors
+import org.apache.spark.mllib.regression.LabeledPoint
+import org.apache.spark.ml.regression.LinearRegression
+import org.apache.spark.mllib.regression.LinearRegressionModel
+import org.apache.spark.mllib.regression.LinearRegressionWithSGD
 
 object Milestones {
     // Application Specific Variables
@@ -50,6 +56,64 @@ object Milestones {
 		return result
 		}
 	
+    def LR(file_name:String): Unit = {
+        // Load and parse the data
+        //   val data = sc.textFile("data/mllib/ridge-data/lpsa.data")
+        //    val parsedData = data.map { line =>
+        //       val parts = line.split(',')
+        //        LabeledPoint(parts(0).toDouble, Vectors.dense(parts(1).split(' ').map(_.toDouble)))
+        //  }.cache()
+
+        // Building the model
+        //   val numIterations = 100
+        //   val stepSize = 0.00000001
+        //   val model = LinearRegressionWithSGD.train(parsedData, numIterations, stepSize)
+
+        // Evaluate model on training examples and compute training error
+        //  val valuesAndPreds = parsedData.map { point =>
+        //       val prediction = model.predict(point.features)
+        //      (point.label, prediction)
+        //  }
+
+        //  val MSE = valuesAndPreds.map{ case(v, p) => math.pow((v - p), 2) }.mean()
+        // println("training Mean Squared Error = " + MSE)
+
+        // Load training data
+        val training = spark.read.format("libsvm")
+            .load("linear_regression_data.txt")
+
+        val lr_instance = new LinearRegression()
+            .setMaxIter(10)
+            .setRegParam(0.3)
+            .setElasticNetParam(0.8)
+
+        // Fit the model
+        val lrModel = lr_instance.fit(training)
+
+        // Print the coefficients and intercept for linear regression
+        System.out.println(s"Coefficients: ${lrModel.coefficients} Intercept: ${lrModel.intercept}")
+
+        // Summarize the model over the training set and print out some metrics
+        val trainingSummary = lrModel.summary
+        System.out.println(s"numIterations: ${trainingSummary.totalIterations}")
+        System.out.println(s"objectiveHistory: [${trainingSummary.objectiveHistory.mkString(",")}]")
+        trainingSummary.residuals.show()
+        System.out.println(s"RMSE: ${trainingSummary.rootMeanSquaredError}")
+        System.out.println(s"r2: ${trainingSummary.r2}")
+
+        writer = new PrintWriter(new File("lrModelResult.txt"))
+        writer.write(s"Coefficients: ${lrModel.coefficients} Intercept: ${lrModel.intercept}\n")
+        writer.write(s"numIterations: ${trainingSummary.totalIterations}\n")
+        writer.write(s"objectiveHistory: [${trainingSummary.objectiveHistory.mkString(",")}]\n")
+        writer.write(trainingSummary.residuals.show())
+        writer.write(s"\nRMSE: ${trainingSummary.rootMeanSquaredError}\n")
+        writer.write(s"r2: ${trainingSummary.r2}\n")
+
+        // Save model
+        lrModel.save(sc, "scalaLinearRegressionModel")
+        // val sameModel = LinearRegressionModel.load(sc, "scalaLinearRegressionWithSGDModel")
+    }
+
     // TODO: fix the paras
     def Clustering(file_name:String) : Unit = {
 		// Read in test file
