@@ -1,26 +1,28 @@
-package milestone2
+package milestone3
 
+import java.io.PrintWriter
+import java.io.StringReader
+import java.io.File
 import java.util.Arrays
+
+import scala.collection.JavaConversions
+import scala.io.Source
+import scala.util.Try
+
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.FileSystem
 import org.apache.hadoop.fs.Path
 import org.apache.spark.SparkConf
 import org.apache.spark.SparkContext
-import scala.collection.JavaConversions
-import scala.io.Source
-import au.com.bytecode.opencsv.CSVReader
-import java.io.PrintWriter
-import java.io.File
-import scala.util.Try
-import java.io.StringReader
 import org.apache.spark.storage.StorageLevel
-
 import org.apache.spark.mllib.linalg.Vectors
 import org.apache.spark.mllib.regression.LabeledPoint
 import org.apache.spark.ml.regression.LinearRegression
 import org.apache.spark.mllib.regression.LinearRegressionModel
 import org.apache.spark.mllib.regression.LinearRegressionWithSGD
 import org.apache.spark.sql.DataFrame
+
+import au.com.bytecode.opencsv.CSVReader
 
 object Milestones {
     // Application Specific Variables
