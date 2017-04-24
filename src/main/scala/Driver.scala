@@ -9,8 +9,8 @@ import org.apache.spark.SparkContext
 import scala.collection.JavaConversions
 import scala.io.Source
 import au.com.bytecode.opencsv.CSVReader
-//import java.io.PrintWriter
-//import java.io.File
+import java.io.PrintWriter
+import java.io.File
 import scala.util.Try
 import java.io.StringReader
 import org.apache.spark.storage.StorageLevel
@@ -92,7 +92,7 @@ object Milestones {
         val lrModel = lr_instance.fit(training)
 
         // Print the coefficients and intercept for linear regression
-        System.out.println(s"Coefficients: ${lrModel.coefficients} Intercept: ${lrModel.intercept}")
+        // System.out.println(s"Coefficients: ${lrModel.coefficients} Intercept: ${lrModel.intercept}")
 
         // Summarize the model over the training set and print out some metrics
         val trainingSummary = lrModel.summary
