@@ -103,15 +103,15 @@ object Milestones {
         System.out.println(s"r2: ${trainingSummary.r2}")
 
         var writer = new PrintWriter(new File("lrModelResult.txt"))
-        writer.write(s"Coefficients: ${lrModel.coefficients} Intercept: ${lrModel.intercept}\n")
+        // writer.write(s"Coefficients: ${lrModel.coefficients} Intercept: ${lrModel.intercept}\n")
         writer.write(s"numIterations: ${trainingSummary.totalIterations}\n")
         writer.write(s"objectiveHistory: [${trainingSummary.objectiveHistory.mkString(",")}]\n")
-        writer.write(trainingSummary.residuals.show())
+        //writer.write(trainingSummary.residuals.show())
         writer.write(s"\nRMSE: ${trainingSummary.rootMeanSquaredError}\n")
         writer.write(s"r2: ${trainingSummary.r2}\n")
 
         // Save model
-        lrModel.save(sc, "scalaLinearRegressionModel")
+        // lrModel.save(sc, "scalaLinearRegressionModel")
         // val sameModel = LinearRegressionModel.load(sc, "scalaLinearRegressionWithSGDModel")
     }
 
