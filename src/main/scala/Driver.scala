@@ -56,7 +56,7 @@ object Milestones {
 		return result
 		}
 	
-    def LR(file_name:String): Unit = {
+    def LR(training:DataFrame): Unit = {
         // Load and parse the data
         //   val data = sc.textFile("data/mllib/ridge-data/lpsa.data")
         //    val parsedData = data.map { line =>
@@ -79,8 +79,8 @@ object Milestones {
         // println("training Mean Squared Error = " + MSE)
 
         // Load training data
-        val training = spark.read.format("libsvm")
-            .load("linear_regression_data.txt")
+        // val training = spark.read.format("libsvm")
+        //    .load("linear_regression_data.txt")
 
         val lr_instance = new LinearRegression()
             .setMaxIter(10)
@@ -257,12 +257,16 @@ object Milestones {
                         "hdfs:/user/xpl5016/Data/2014/oesm14in4/nat4d_M2014_dl.xlsx.csv",
                         "hdfs:/user/xpl5016/Data/2015/oesm15in4/nat4d_M2015_dl.xlsx.csv"
         )
+        
         val t0 = System.nanoTime()                                      
         for(file <- files) {
             Clustering(file)
         }
 		val t1 = System.nanoTime()
 		println("Elapsed time: " + (t1-t0)/10e9 + "s.")
+
+
+
         //*---- Our Code Ends ----*//
     }
 }
