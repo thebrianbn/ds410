@@ -1,4 +1,4 @@
-;package milestone2
+package milestone2
 
 import java.io.StringWriter
 import au.com.bytecode.opencsv.CSVWriter
